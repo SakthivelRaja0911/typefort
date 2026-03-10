@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TypeFort — Master Your Speed</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=Playfair+Display:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+/* ===== THEMES ===== */
+[data-theme="dark"] {
+  --bg: #0d0f14;
+  --surface: #13161e;
+  --surface2: #1a1e28;
+  --border: #1e2230;
+  --text: #c8cdd8;
+  --dim: #4a5068;
+  --accent: #f0b429;
+  --accent2: #e84393;
+  --correct: #4ade80;
+  --wrong: #f87171;
+  --cursor: #f0b429;
+  --shadow: rgba(0,0,0,0.5);
+  --grid-color: rgba(240,180,41,0.03);
+  --orb-opacity: 0.12;
+}
+[data-theme="light"] {
+  --bg: #f5f4f0;
+  --surface: #ffffff;
+  --surface2: #eeede8;
+  --border: #ddd9d0;
+  --text: #1a1a2e;
+  --dim: #9090a0;
+  --accent: #c9820a;
+  --accent2: #c42070;
+  --correct: #16a34a;
+  --wrong: #dc2626;
+  --cursor: #c9820a;
+  --shadow: rgba(0,0,0,0.12);
+  --grid-color: rgba(180,130,30,0.05);
+  --orb-opacity: 0.06;
+}
+[data-theme="system"] {
+  --bg: #0d0f14;
+  --surface: #13161e;
+  --surface2: #1a1e28;
+  --border: #1e2230;
+  --text: #c8cdd8;
+  --dim: #4a5068;
+  --accent: #f0b429;
+  --accent2: #e84393;
+  --correct: #4ade80;
+  --wrong: #f87171;
+  --cursor: #f0b429;
+  --shadow: rgba(0,0,0,0.5);
+  --grid-color: rgba(240,180,41,0.03);
+  --orb-opacity: 0.12;
+}
+@media (prefers-color-scheme: light) {
+  [data-theme="system"] {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --surface2: #eeede8;
+    --border: #ddd9d0;
+    --text: #1a1a2e;
+    --dim: #9090a0;
+    --accent: #c9820a;
+    --accent2: #c42070;
+    --correct: #16a34a;
+    --wrong: #dc2626;
+    --cursor: #c9820a;
+    --shadow: rgba(0,0,0,0.12);
+    --grid-color: rgba(180,130,30,0.05);
+    --orb-opacity: 0.06;
+  }
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+  transition: background-image 0.3s;
+}
+
+.glow-orb {
+  position: fixed;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: var(--orb-opacity);
+  transition: opacity 0.3s;
+}
+.glow-orb.a { background: #f0b429; top: -200px; left: -200px; }
+.glow-orb.b { background: #e84393; bottom: -200px; right: -200px; }
+
+header {
+  position: relative; z-index: 10;
+  width: 100%; max-width: 980px;
+  padding: 28px 20px 0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem; letter-spacing: 3px;
+  color: var(--accent);
+  text-shadow: 0 0 20px rgba(240,180,41,0.4);
+}
+.logo span { color: var(--text); }
+.header-right { display: flex; align-items: center; gap: 14px; }
+.tagline { font-size: 0.72rem; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; }
+
+.theme-switcher {
+  display: flex; gap: 4px; align-items: center;
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 4px; border-radius: 8px;
+}
+.theme-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem; letter-spacing: 1px;
+  padding: 5px 9px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--dim);
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 5px;
+  text-transform: uppercase;
+}
+.theme-btn:hover { color: var(--text); }
+.theme-btn.active { background: var(--surface2); border-color: var(--border); color: var(--accent); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-4px)} 40%{transform:translateX(4px)} 60%{transform:translateX(-3px)} 80%{transform:translateX(3px)} }
+@keyframes comboPop { 0%{transform:scale(1)} 50%{transform:scale(1.18)} 100%{transform:scale(1)} }
+@keyframes popIn { 0%{transform:scale(0.85);opacity:0} 100%{transform:scale(1);opacity:1} }
+
+.difficulty-screen {
+  position: relative; z-index: 10;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 36px; margin-top: 60px; padding: 20px;
+  width: 100%; max-width: 980px;
+  animation: fadeUp 0.6s ease forwards;
+}
+.difficulty-screen.hidden { display: none; }
+
+.diff-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  letter-spacing: 4px; line-height: 1;
+  text-align: center; color: var(--text);
+}
+.diff-cards {
+  display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+}
+.diff-card {
+  width: 200px; padding: 28px 22px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer; position: relative; overflow: hidden;
+  transition: all 0.25s ease;
+  clip-path: polygon(0 0, 95% 0, 100% 5%, 100% 100%, 5% 100%, 0 95%);
+}
+.diff-card::before {
+  content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 0.3s;
+}
+.diff-card.easy::before { background: linear-gradient(135deg, rgba(74,222,128,0.08), transparent); }
+.diff-card.medium::before { background: linear-gradient(135deg, rgba(240,180,41,0.08), transparent); }
+.diff-card.hard::before { background: linear-gradient(135deg, rgba(232,67,147,0.1), transparent); }
+.diff-card.extreme::before { background: linear-gradient(135deg, rgba(139,92,246,0.12), transparent); }
+.diff-card:hover::before { opacity: 1; }
+.diff-card:hover { transform: translateY(-5px); }
+.diff-card.easy:hover { border-color: #4ade80; box-shadow: 0 0 30px rgba(74,222,128,0.15); }
+.diff-card.medium:hover { border-color: var(--accent); box-shadow: 0 0 30px rgba(240,180,41,0.15); }
+.diff-card.hard:hover { border-color: var(--accent2); box-shadow: 0 0 30px rgba(232,67,147,0.18); }
+.diff-card.extreme:hover { border-color: #8b5cf6; box-shadow: 0 0 30px rgba(139,92,246,0.2); }
+.diff-icon { font-size: 2rem; margin-bottom: 12px; }
+.diff-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: 3px; margin-bottom: 8px; }
+.diff-card.easy .diff-name { color: #4ade80; }
+.diff-card.medium .diff-name { color: var(--accent); }
+.diff-card.hard .diff-name { color: var(--accent2); }
+.diff-card.extreme .diff-name { color: #8b5cf6; }
+.diff-desc { font-size: 0.76rem; color: var(--dim); line-height: 1.5; }
+.diff-detail { margin-top: 12px; font-size: 0.68rem; color: var(--dim); }
+.cert-badge {
+  margin-top: 10px; font-size: 0.6rem;
+  color: #8b5cf6; letter-spacing: 1px;
+  border: 1px solid rgba(139,92,246,0.3);
+  padding: 2px 6px; display: inline-block;
+}
+
+.test-screen {
+  position: relative; z-index: 10;
+  width: 100%; max-width: 980px; padding: 20px;
+  display: none; flex-direction: column; gap: 20px;
+  animation: fadeUp 0.4s ease forwards;
+}
+.test-screen.active { display: flex; }
+
+.top-bar {
+  display: flex; align-items: center;
+  justify-content: space-between; flex-wrap: wrap; gap: 12px;
+}
+.options-bar { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+.opt-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem; padding: 5px 11px;
+  border: 1px solid var(--border);
+  background: transparent; color: var(--dim);
+  cursor: pointer; transition: all 0.2s;
+  letter-spacing: 1px;
+  clip-path: polygon(0 0, 90% 0, 100% 30%, 100% 100%, 10% 100%, 0 70%);
+}
+.opt-btn:hover { color: var(--text); border-color: var(--dim); }
+.opt-btn.active { color: var(--accent); border-color: var(--accent); background: rgba(240,180,41,0.06); }
+.opt-btn.active-pink { color: var(--accent2); border-color: var(--accent2); background: rgba(232,67,147,0.06); }
+.sep { color: var(--border); }
+
+.stats-row { display: flex; gap: 16px; flex-wrap: wrap; }
+.stat-box {
+  flex: 1; min-width: 100px;
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 12px 16px;
+  clip-path: polygon(0 0, 92% 0, 100% 15%, 100% 100%, 8% 100%, 0 85%);
+}
+.stat-label { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 2px; color: var(--dim); text-transform: uppercase; margin-bottom: 4px; }
+.stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; letter-spacing: 2px; line-height: 1; }
+.stat-value.wpm { color: var(--accent); }
+.stat-value.acc { color: var(--correct); }
+.stat-value.timer { color: var(--text); }
+.stat-value.combo { color: var(--accent2); }
+
+.progress-track { height: 2px; background: var(--border); position: relative; overflow: hidden; }
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  width: 0%; transition: width 0.3s ease;
+  box-shadow: 0 0 10px var(--accent);
+}
+
+.typing-container {
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 28px 26px; position: relative;
+  clip-path: polygon(0 0, 99% 0, 100% 2%, 100% 100%, 1% 100%, 0 98%);
+  cursor: text;
+}
+.diff-badge {
+  position: absolute; top: -1px; right: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.58rem; letter-spacing: 3px; padding: 3px 10px; text-transform: uppercase;
+}
+.diff-badge.easy { background: rgba(74,222,128,0.12); color: #4ade80; }
+.diff-badge.medium { background: rgba(240,180,41,0.12); color: var(--accent); }
+.diff-badge.hard { background: rgba(232,67,147,0.12); color: var(--accent2); }
+.diff-badge.extreme { background: rgba(139,92,246,0.12); color: #8b5cf6; }
+
+#text-display {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.2rem; line-height: 2;
+  color: var(--dim); user-select: none;
+  position: relative; min-height: 100px;
+  letter-spacing: 0.5px; word-break: break-all;
+}
+#text-display .char { display: inline; }
+#text-display .char.correct { color: var(--text); }
+#text-display .char.wrong { color: var(--wrong); background: rgba(248,113,113,0.1); border-radius: 2px; }
+#text-display .char.cursor { position: relative; }
+#text-display .char.cursor::before {
+  content: ''; position: absolute; left: 0; top: 2px; bottom: 2px;
+  width: 2px; background: var(--cursor);
+  box-shadow: 0 0 8px var(--cursor);
+  animation: blink 0.9s step-end infinite;
+}
+#typing-input { position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px; }
+.click-hint {
+  text-align: center; font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem; color: var(--dim);
+  letter-spacing: 2px; margin-top: 14px; transition: opacity 0.3s;
+}
+.click-hint.active-typing { opacity: 0; pointer-events: none; }
+
+.controls { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.73rem;
+  letter-spacing: 2px; text-transform: uppercase;
+  padding: 11px 26px; border: 1px solid var(--border);
+  background: transparent; color: var(--text);
+  cursor: pointer; transition: all 0.2s;
+  clip-path: polygon(0 0, 92% 0, 100% 20%, 100% 100%, 8% 100%, 0 80%);
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(240,180,41,0.05); }
+.btn.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.1); box-shadow: 0 0 20px rgba(240,180,41,0.3); }
+
+.results-screen {
+  position: relative; z-index: 10;
+  width: 100%; max-width: 980px; padding: 20px;
+  display: none; flex-direction: column; align-items: center; gap: 28px;
+  animation: fadeUp 0.5s ease forwards;
+}
+.results-screen.active { display: flex; }
+.results-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  letter-spacing: 4px; text-align: center;
+}
+.results-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px; width: 100%;
+}
+.result-card {
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 22px; text-align: center;
+  clip-path: polygon(0 0, 90% 0, 100% 10%, 100% 100%, 10% 100%, 0 90%);
+}
+.result-card.featured { border-color: var(--accent); background: rgba(240,180,41,0.04); }
+.result-label { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 3px; color: var(--dim); text-transform: uppercase; margin-bottom: 8px; }
+.result-val { font-family: 'Bebas Neue', sans-serif; font-size: 3.2rem; letter-spacing: 2px; line-height: 1; color: var(--accent); }
+.result-val.green { color: var(--correct); }
+.result-val.pink { color: var(--accent2); }
+.result-val.white { color: var(--text); }
+.result-unit { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--dim); margin-top: 4px; }
+
+.performance-bar {
+  width: 100%; background: var(--surface);
+  border: 1px solid var(--border); padding: 18px 22px;
+}
+.perf-label { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 2px; color: var(--dim); text-transform: uppercase; margin-bottom: 10px; }
+.perf-track { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+.perf-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--correct), var(--accent)); transition: width 1s cubic-bezier(0.22,1,0.36,1); }
+.perf-rank { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; letter-spacing: 2px; color: var(--text); }
+
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: none; align-items: center; justify-content: center;
+  z-index: 1000; backdrop-filter: blur(6px);
+}
+.modal-overlay.active { display: flex; }
+.modal-box {
+  background: var(--surface); border: 1px solid var(--accent);
+  padding: 40px; max-width: 440px; width: 90%;
+  position: relative; text-align: center;
+  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  clip-path: polygon(0 0, 97% 0, 100% 3%, 100% 100%, 3% 100%, 0 97%);
+  box-shadow: 0 0 60px rgba(240,180,41,0.2);
+}
+.modal-title {
+  font-family: 'Bebas Neue', sans-serif; font-size: 2rem;
+  letter-spacing: 3px; color: var(--accent); margin-bottom: 6px;
+}
+.modal-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--dim); margin-bottom: 24px; letter-spacing: 1px; }
+.modal-input {
+  width: 100%; padding: 12px 16px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); font-family: 'JetBrains Mono', monospace;
+  font-size: 1rem; letter-spacing: 2px; text-align: center;
+  outline: none; transition: border-color 0.2s;
+  clip-path: polygon(0 0, 96% 0, 100% 20%, 100% 100%, 4% 100%, 0 80%);
+  margin-bottom: 20px;
+}
+.modal-input:focus { border-color: var(--accent); }
+.modal-input::placeholder { color: var(--dim); letter-spacing: 2px; }
+.modal-btns { display: flex; gap: 10px; justify-content: center; }
+
+.cert-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: none; align-items: center; justify-content: center;
+  z-index: 1100; backdrop-filter: blur(8px);
+  overflow-y: auto; padding: 20px;
+}
+.cert-overlay.active { display: flex; }
+
+#certificateCanvas {
+  display: block; max-width: 100%;
+  box-shadow: 0 0 80px rgba(240,180,41,0.25);
+  animation: popIn 0.5s ease forwards;
+}
+.cert-controls {
+  display: flex; gap: 12px; justify-content: center;
+  margin-top: 20px; flex-wrap: wrap;
+}
+
+footer {
+  position: relative; z-index: 10;
+  width: 100%; max-width: 980px;
+  padding: 30px 20px; margin-top: auto;
+  border-top: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.footer-brand {
+  font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem;
+  letter-spacing: 3px; color: var(--accent);
+}
+.footer-creators {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+  color: var(--dim); letter-spacing: 1px; text-align: center;
+}
+.footer-creators span { color: var(--text); }
+.footer-copy {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.62rem;
+  color: var(--dim); letter-spacing: 1px; text-align: center;
+}
+.footer-copy a { color: var(--accent); text-decoration: none; }
+.footer-copy a:hover { text-decoration: underline; }
+
+.shake { animation: shake 0.3s ease; }
+.combo-pop { animation: comboPop 0.2s ease; }
+
+@media (max-width: 600px) {
+  .diff-cards { flex-direction: column; align-items: center; }
+  .diff-card { width: 100%; max-width: 320px; }
+  .stats-row { gap: 10px; }
+  #text-display { font-size: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="glow-orb a"></div>
+<div class="glow-orb b"></div>
+
+<header>
+  <div class="logo">Type<span>Fort</span></div>
+  <div class="header-right">
+    <div class="tagline">Master Your Speed</div>
+    <div class="theme-switcher">
+      <button class="theme-btn" onclick="window.appController.setTheme('dark')" id="themeDark">Dark</button>
+      <button class="theme-btn" onclick="window.appController.setTheme('light')" id="themeLight">Light</button>
+      <button class="theme-btn active" onclick="window.appController.setTheme('system')" id="themeSystem">Auto</button>
+    </div>
+  </div>
+</header>
+
+<div class="difficulty-screen" id="diffScreen">
+  <div class="diff-title">SELECT<br>DIFFICULTY</div>
+  <div class="diff-cards">
+    <div class="diff-card easy" onclick="window.appController.selectDifficulty('easy')">
+      <div class="diff-icon">🌱</div>
+      <div class="diff-name">Easy</div>
+      <div class="diff-desc">Common words,<br>no punctuation</div>
+      <div class="diff-detail">// for beginners<br>// short words</div>
+    </div>
+    <div class="diff-card medium" onclick="window.appController.selectDifficulty('medium')">
+      <div class="diff-icon">⚡</div>
+      <div class="diff-name">Medium</div>
+      <div class="diff-desc">Mixed content,<br>with punctuation</div>
+      <div class="diff-detail">// intermediate<br>// mixed case</div>
+    </div>
+    <div class="diff-card hard" onclick="window.appController.selectDifficulty('hard')">
+      <div class="diff-icon">🔥</div>
+      <div class="diff-name">Hard</div>
+      <div class="diff-desc">Numbers, symbols,<br>complex words</div>
+      <div class="diff-detail">// expert level<br>// full charset</div>
+      <div class="cert-badge">🏆 98% = Certificate</div>
+    </div>
+    <div class="diff-card extreme" onclick="window.appController.selectDifficulty('extreme')">
+      <div class="diff-icon">💀</div>
+      <div class="diff-name">Extreme</div>
+      <div class="diff-desc">Code snippets,<br>rare symbols, chaos</div>
+      <div class="diff-detail">// god mode<br>// not for humans</div>
+      <div class="cert-badge" style="color:#e84393;border-color:rgba(232,67,147,0.3)">🏆 98% = Certificate</div>
+    </div>
+  </div>
+</div>
+
+<div class="test-screen" id="testScreen">
+  <div class="top-bar">
+    <div class="options-bar" id="optionsBar">
+      <button class="opt-btn active-pink" id="btnPunct" onclick="window.appController.toggleOption('punctuation')">@ punctuation</button>
+      <button class="opt-btn" id="btnNumbers" onclick="window.appController.toggleOption('numbers')">&#35; numbers</button>
+      <span class="sep">|</span>
+      <button class="opt-btn active" id="btnTime" onclick="window.appController.setMode('time')">⏱ time</button>
+      <button class="opt-btn" id="btnWords" onclick="window.appController.setMode('words')">A words</button>
+      <span class="sep">|</span>
+      <button class="opt-btn" id="btn15" onclick="window.appController.setDuration(15)">15</button>
+      <button class="opt-btn active" id="btn30" onclick="window.appController.setDuration(30)">30</button>
+      <button class="opt-btn" id="btn60" onclick="window.appController.setDuration(60)">60</button>
+      <button class="opt-btn" id="btn120" onclick="window.appController.setDuration(120)">120</button>
+    </div>
+    <button class="btn" onclick="window.appController.goBack()">← back</button>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-label">WPM</div>
+      <div class="stat-value wpm" id="liveWpm">0</div>
+      <div class="stat-unit">words/min</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Accuracy</div>
+      <div class="stat-value acc" id="liveAcc">100%</div>
+      <div class="stat-unit">correct</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label" id="timerLabel">Time</div>
+      <div class="stat-value timer" id="liveTimer">30</div>
+      <div class="stat-unit" id="timerUnit">seconds left</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Combo</div>
+      <div class="stat-value combo" id="liveCombo">0</div>
+      <div class="stat-unit">streak</div>
+    </div>
+  </div>
+
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <div class="typing-container" id="typingContainer" onclick="window.appController.focusInput()">
+    <div class="diff-badge" id="diffBadge">easy</div>
+    <div id="text-display"></div>
+    <input type="text" id="typing-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <div class="click-hint" id="clickHint">// click here or press any key to start typing</div>
+  </div>
+
+  <div class="controls">
+    <button class="btn primary" onclick="window.appController.restartTest()">↺ restart</button>
+    <button class="btn" onclick="window.appController.newText()">⟳ new text</button>
+  </div>
+</div>
+
+<div class="results-screen" id="resultsScreen">
+  <div class="results-title" id="resultsTitle">TEST COMPLETE</div>
+
+  <div class="results-grid">
+    <div class="result-card featured">
+      <div class="result-label">WPM</div>
+      <div class="result-val" id="resWpm">0</div>
+      <div class="result-unit">words per minute</div>
+    </div>
+    <div class="result-card">
+      <div class="result-label">Raw WPM</div>
+      <div class="result-val green" id="resRaw">0</div>
+      <div class="result-unit">uncorrected</div>
+    </div>
+    <div class="result-card">
+      <div class="result-label">Accuracy</div>
+      <div class="result-val green" id="resAcc">0%</div>
+      <div class="result-unit">correct chars</div>
+    </div>
+    <div class="result-card">
+      <div class="result-label">Errors</div>
+      <div class="result-val pink" id="resErrors">0</div>
+      <div class="result-unit">total mistakes</div>
+    </div>
+    <div class="result-card">
+      <div class="result-label">Max Combo</div>
+      <div class="result-val white" id="resCombo">0</div>
+      <div class="result-unit">best streak</div>
+    </div>
+  </div>
+
+  <div class="performance-bar">
+    <div class="perf-label">Performance Rating</div>
+    <div class="perf-track"><div class="perf-fill" id="perfFill"></div></div>
+    <div class="perf-rank" id="perfRank">Novice</div>
+  </div>
+
+  <div class="controls">
+    <button class="btn primary" id="certBtn" onclick="window.appController.showNameModal()" style="display:none;">🏆 Get Certificate</button>
+    <button class="btn" onclick="window.appController.restartTest()">↺ Retry</button>
+    <button class="btn" onclick="window.appController.goBack()">← Menu</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="nameModal">
+  <div class="modal-box">
+    <div class="modal-title">CLAIM CERTIFICATE</div>
+    <div class="modal-sub">Enter your name</div>
+    <input type="text" class="modal-input" id="modalInput" placeholder="Your Name" maxlength="30">
+    <div class="modal-btns">
+      <button class="btn" onclick="window.appController.closeNameModal()">Cancel</button>
+      <button class="btn primary" onclick="window.appController.generateAndShowCertificate()">Generate</button>
+    </div>
+  </div>
+</div>
+
+<div class="cert-overlay" id="certOverlay">
+  <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+    <canvas id="certificateCanvas"></canvas>
+    <div class="cert-controls">
+      <button class="btn primary" onclick="window.appController.downloadCertificate()">⬇ Download</button>
+      <button class="btn" onclick="window.appController.closeCertificate()">✕ Close</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-brand">TypeFort</div>
+  <div class="footer-creators">Built by <span>Sakthivel Raja & Sanjive</span></div>
+  <div class="footer-copy">© 2026 TypeFort. All rights reserved. | <a href="mailto:tntypefort@gmail.com">tntypefort@gmail.com</a></div>
+</footer>
+
+<script>
+window.appController = {
+  // State
+  wordPools: {
+    easy: ['the','and','to','of','a','in','is','it','you','that','he','was','for','on','are','as','with','be','at','this','but','his','from','have','or','had','by','hot','her','she','two','may','day','did','its','our','out','who','oil','let','put','say','she','too','use'],
+    medium: ['create','improve','quality','provide','develop','increase','enhance','simplify','optimize','implement','analyze','organize','evaluate','generate','calculate','establish','discover','investigate','execute','deliver','maintain','monitor','verify','confirm','validate','process','handle','manage','control','secure','protect'],
+    hard: ['paradigm','synthesize','juxtaposition','ubiquitous','ephemeral','cacophony','serendipity','obfuscate','quintessential','benevolence','meticulous','eloquent','perspicacious','ethereal','pragmatic','zealous','vindictive','ebullient','melancholic','insouciant'],
+    extreme: ['async','await','const','function','return','boolean','interface','namespace','protocol','middleware','microservice','containerization','orchestration','kubernetes','virtualization','hypervisor','throughput','latency','bandwidth','fragmentation','recursion','polymorphism','encapsulation','abstraction']
+  },
+  
+  punctuationMarks: [',','.',';',':','!','?'],
+  
+  difficulty: 'easy',
+  mode: 'time',
+  duration: 30,
+  timeLeft: 30,
+  userInput: '',
+  currentText: '',
+  started: false,
+  finished: false,
+  correctChars: 0,
+  totalChars: 0,
+  timerInterval: null,
+  startTime: null,
+  combo: 0,
+  maxCombo: 0,
+  totalErrors: 0,
+  finalWpm: 0,
+  finalAcc: 0,
+  options: { punctuation: true, numbers: false },
+
+  // Initialize
+  init: function() {
+    this.setTheme(localStorage.getItem('theme') || 'system');
+    this.setupEventListeners();
+  },
+
+  setupEventListeners: function() {
+    const self = this;
+    document.addEventListener('keydown', (e) => {
+      if (document.getElementById('testScreen').classList.contains('active') && !self.finished) {
+        if (e.key.length === 1 || e.key === 'Backspace') self.focusInput();
+        if (e.key === 'Tab') { e.preventDefault(); self.restartTest(); }
+      }
+    });
+
+    document.getElementById('typing-input').addEventListener('input', (e) => {
+      if (self.finished) return;
+      const val = e.target.value;
+
+      if (!self.started && val.length > 0) {
+        self.started = true;
+        self.startTime = Date.now();
+        document.getElementById('clickHint').classList.add('active-typing');
+        if (self.mode === 'time') self.startTimer();
+      }
+
+      if (val.length < self.userInput.length) {
+        self.userInput = val.substring(0, Math.min(val.length, self.currentText.length));
+      } else {
+        const newChar = val[val.length - 1];
+        const expectedChar = self.currentText[self.userInput.length];
+        if (newChar === expectedChar) {
+          self.correctChars++;
+          self.combo++;
+          if (self.combo > self.maxCombo) self.maxCombo = self.combo;
+        } else {
+          self.totalErrors++;
+          self.combo = 0;
+          const tc = document.getElementById('typingContainer');
+          tc.classList.remove('shake');
+          void tc.offsetWidth;
+          tc.classList.add('shake');
+        }
+        self.userInput = val.substring(0, self.currentText.length);
+        self.totalChars++;
+      }
+
+      e.target.value = self.userInput;
+      self.renderText();
+      self.updateStats();
+
+      if (self.mode === 'words' && self.userInput.length >= self.currentText.length) self.endTest();
+    });
+
+    document.getElementById('modalInput')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') self.generateAndShowCertificate();
+    });
+  },
+
+  // Theme
+  setTheme: function(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    localStorage.setItem('theme', t);
+    document.getElementById('themeDark').classList.remove('active');
+    document.getElementById('themeLight').classList.remove('active');
+    document.getElementById('themeSystem').classList.remove('active');
+    
+    if (t === 'dark') document.getElementById('themeDark').classList.add('active');
+    else if (t === 'light') document.getElementById('themeLight').classList.add('active');
+    else document.getElementById('themeSystem').classList.add('active');
+  },
+
+  // Difficulty
+  selectDifficulty: function(diff) {
+    this.difficulty = diff;
+    document.getElementById('diffScreen').classList.add('hidden');
+    document.getElementById('testScreen').classList.add('active');
+
+    if (diff === 'easy') { this.options.punctuation = false; this.options.numbers = false; }
+    else if (diff === 'medium') { this.options.punctuation = true; this.options.numbers = false; }
+    else if (diff === 'hard') { this.options.punctuation = true; this.options.numbers = true; }
+    else { this.options.punctuation = true; this.options.numbers = true; }
+
+    this.updateOptionButtons();
+    document.getElementById('diffBadge').textContent = diff;
+    document.getElementById('diffBadge').className = 'diff-badge ' + diff;
+
+    this.generateText();
+    this.resetStats();
+    this.renderText();
+  },
+
+  updateOptionButtons: function() {
+    document.getElementById('btnPunct').className = 'opt-btn ' + (this.options.punctuation ? 'active-pink' : '');
+    document.getElementById('btnNumbers').className = 'opt-btn ' + (this.options.numbers ? 'active' : '');
+  },
+
+  toggleOption: function(opt) {
+    this.options[opt] = !this.options[opt];
+    this.updateOptionButtons();
+    this.generateText();
+    this.resetStats();
+    this.renderText();
+  },
+
+  setMode: function(m) {
+    this.mode = m;
+    document.getElementById('btnTime').className = 'opt-btn ' + (m === 'time' ? 'active' : '');
+    document.getElementById('btnWords').className = 'opt-btn ' + (m === 'words' ? 'active' : '');
+    document.getElementById('timerLabel').textContent = m === 'time' ? 'Time' : 'Words';
+    document.getElementById('timerUnit').textContent = m === 'time' ? 'seconds left' : 'words left';
+    this.resetStats();
+    this.generateText();
+    this.renderText();
+  },
+
+  setDuration: function(d) {
+    this.duration = d;
+    this.timeLeft = d;
+    ['15','30','60','120'].forEach(v => {
+      document.getElementById('btn' + v).className = 'opt-btn ' + (d == v ? 'active' : '');
+    });
+    this.resetStats();
+    this.generateText();
+    this.renderText();
+  },
+
+  // Generate Text
+  generateText: function() {
+    if (this.difficulty === 'extreme') {
+      const pool = this.wordPools.extreme;
+      const words = [];
+      const count = this.mode === 'time' ? Math.max(20, Math.ceil(this.duration / 2)) : this.duration;
+      for (let i = 0; i < count; i++) words.push(pool[Math.floor(Math.random() * pool.length)]);
+      this.currentText = words.join(' ');
+      return;
+    }
+
+    const pool = this.wordPools[this.difficulty];
+    const words = [];
+    const count = this.mode === 'time' ? Math.max(80, this.duration * 3) : this.duration;
+
+    for (let i = 0; i < count; i++) {
+      let word = pool[Math.floor(Math.random() * pool.length)];
+      if (this.options.numbers && Math.random() < 0.18) word = Math.floor(Math.random() * 9999).toString();
+      words.push(word);
+    }
+
+    let text = words.join(' ');
+    if (this.options.punctuation) {
+      let result = '';
+      for (let i = 0; i < text.length; i++) {
+        result += text[i];
+        if (text[i] === ' ' && Math.random() < 0.12) {
+          result = result.trimEnd();
+          result += this.punctuationMarks[Math.floor(Math.random() * this.punctuationMarks.length)] + ' ';
+        }
+      }
+      text = result;
+    }
+    this.currentText = text.trim();
+  },
+
+  // Reset
+  resetStats: function() {
+    this.userInput = '';
+    this.started = false;
+    this.finished = false;
+    this.timeLeft = this.duration;
+    this.correctChars = 0;
+    this.totalChars = 0;
+    this.combo = 0;
+    this.maxCombo = 0;
+    this.totalErrors = 0;
+    this.startTime = null;
+    this.finalWpm = 0;
+    this.finalAcc = 0;
+    clearInterval(this.timerInterval);
+    document.getElementById('liveWpm').textContent = '0';
+    document.getElementById('liveAcc').textContent = '100%';
+    document.getElementById('liveTimer').textContent = this.mode === 'time' ? this.duration : this.duration;
+    document.getElementById('liveCombo').textContent = '0';
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('clickHint').classList.remove('active-typing');
+    document.getElementById('typing-input').value = '';
+  },
+
+  // Render
+  renderText: function() {
+    const display = document.getElementById('text-display');
+    display.innerHTML = '';
+    for (let i = 0; i < this.currentText.length; i++) {
+      const span = document.createElement('span');
+      span.className = 'char';
+      if (i < this.userInput.length) span.classList.add(this.userInput[i] === this.currentText[i] ? 'correct' : 'wrong');
+      else if (i === this.userInput.length) span.classList.add('cursor');
+      span.textContent = this.currentText[i];
+      display.appendChild(span);
+    }
+    const cursor = display.querySelector('.cursor');
+    if (cursor) cursor.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  },
+
+  focusInput: function() {
+    document.getElementById('typing-input').focus();
+  },
+
+  startTimer: function() {
+    const self = this;
+    this.timerInterval = setInterval(() => {
+      self.timeLeft--;
+      document.getElementById('liveTimer').textContent = self.timeLeft;
+      document.getElementById('progressFill').style.width = ((self.duration - self.timeLeft) / self.duration * 100) + '%';
+      if (self.timeLeft <= 0) self.endTest();
+    }, 1000);
+  },
+
+  updateStats: function() {
+    if (!this.startTime) return;
+    const elapsed = (Date.now() - this.startTime) / 60000;
+    const wpm = elapsed > 0 ? Math.round((this.correctChars / 5) / elapsed) : 0;
+    const acc = this.totalChars > 0 ? Math.round((this.correctChars / this.totalChars) * 100) : 100;
+    document.getElementById('liveWpm').textContent = wpm;
+    document.getElementById('liveAcc').textContent = acc + '%';
+    document.getElementById('liveCombo').textContent = this.combo;
+    const comboEl = document.getElementById('liveCombo');
+    if (this.combo > 0 && this.combo % 10 === 0) {
+      comboEl.classList.remove('combo-pop');
+      void comboEl.offsetWidth;
+      comboEl.classList.add('combo-pop');
+    }
+    if (this.mode === 'words') {
+      const wordsLeft = Math.max(0, this.currentText.split(' ').length - this.userInput.split(' ').length + 1);
+      document.getElementById('liveTimer').textContent = wordsLeft;
+      document.getElementById('progressFill').style.width = (this.userInput.length / this.currentText.length * 100) + '%';
+    }
+  },
+
+  // End Test
+  endTest: function() {
+    clearInterval(this.timerInterval);
+    this.finished = true;
+    document.getElementById('typing-input').blur();
+
+    const elapsed = this.startTime ? (Date.now() - this.startTime) / 60000 : this.duration / 60;
+    this.finalWpm = elapsed > 0 ? Math.round((this.correctChars / 5) / elapsed) : 0;
+    const rawWpm = elapsed > 0 ? Math.round((this.totalChars / 5) / elapsed) : 0;
+    this.finalAcc = this.totalChars > 0 ? Math.round((this.correctChars / this.totalChars) * 100) : 100;
+
+    document.getElementById('testScreen').classList.remove('active');
+    const rs = document.getElementById('resultsScreen');
+    rs.classList.add('active');
+
+    document.getElementById('resWpm').textContent = this.finalWpm;
+    document.getElementById('resRaw').textContent = rawWpm;
+    document.getElementById('resAcc').textContent = this.finalAcc + '%';
+    document.getElementById('resErrors').textContent = this.totalErrors;
+    document.getElementById('resCombo').textContent = this.maxCombo;
+
+    let rank = 'Novice';
+    let perfWidth = 0;
+    if (this.finalAcc >= 98 && this.finalWpm >= 120) { rank = 'Godlike'; perfWidth = 100; }
+    else if (this.finalAcc >= 97 && this.finalWpm >= 100) { rank = 'Master'; perfWidth = 90; }
+    else if (this.finalAcc >= 95 && this.finalWpm >= 80) { rank = 'Advanced'; perfWidth = 75; }
+    else if (this.finalAcc >= 90 && this.finalWpm >= 60) { rank = 'Intermediate'; perfWidth = 55; }
+    else if (this.finalAcc >= 85) { rank = 'Beginner'; perfWidth = 35; }
+
+    document.getElementById('perfRank').textContent = rank;
+    document.getElementById('perfFill').style.width = perfWidth + '%';
+
+    const certBtn = document.getElementById('certBtn');
+    if ((this.difficulty === 'hard' || this.difficulty === 'extreme') && this.finalAcc >= 98) {
+      certBtn.style.display = 'inline-block';
+    } else {
+      certBtn.style.display = 'none';
+    }
+  },
+
+  // Certificate
+  showNameModal: function() {
+    document.getElementById('modalInput').value = '';
+    document.getElementById('nameModal').classList.add('active');
+    document.getElementById('modalInput').focus();
+  },
+
+  closeNameModal: function() {
+    document.getElementById('nameModal').classList.remove('active');
+  },
+
+  generateAndShowCertificate: function() {
+    const name = document.getElementById('modalInput').value.trim();
+    if (!name) {
+      alert('Please enter your name');
+      return;
+    }
+    this.closeNameModal();
+    const self = this;
+    setTimeout(() => {
+      self.drawCertificate(name);
+      document.getElementById('certOverlay').classList.add('active');
+    }, 300);
+  },
+
+  drawCertificate: function(name) {
+    const canvas = document.getElementById('certificateCanvas');
+    const ctx = canvas.getContext('2d');
+    const W = 1000, H = 650;
+    canvas.width = W;
+    canvas.height = H;
+    canvas.style.maxWidth = '900px';
+
+    ctx.fillStyle = '#0d0f14';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.strokeStyle = '#f0b429';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(18, 18, W-36, H-36);
+
+    ctx.strokeStyle = 'rgba(240,180,41,0.3)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(24, 24, W-48, H-48);
+
+    const drawCorner = (x, y, sx, sy) => {
+      ctx.strokeStyle = '#f0b429';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x, y + sy*40);
+      ctx.lineTo(x, y);
+      ctx.lineTo(x + sx*40, y);
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(240,180,41,0.5)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x + sx*10, y + sy*25);
+      ctx.lineTo(x + sx*10, y + sy*10);
+      ctx.lineTo(x + sx*25, y + sy*10);
+      ctx.stroke();
+      ctx.fillStyle = '#f0b429';
+      ctx.save();
+      ctx.translate(x + sx*5, y + sy*5);
+      ctx.rotate(Math.PI/4);
+      ctx.fillRect(-4,-4,8,8);
+      ctx.restore();
+    };
+    drawCorner(18, 18, 1, 1);
+    drawCorner(W-18, 18, -1, 1);
+    drawCorner(18, H-18, 1, -1);
+    drawCorner(W-18, H-18, -1, -1);
+
+    const lineGrad = ctx.createLinearGradient(50, 0, W-50, 0);
+    lineGrad.addColorStop(0, 'transparent');
+    lineGrad.addColorStop(0.3, '#f0b429');
+    lineGrad.addColorStop(0.7, '#f0b429');
+    lineGrad.addColorStop(1, 'transparent');
+    ctx.strokeStyle = lineGrad;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(50, 80);
+    ctx.lineTo(W-50, 80);
+    ctx.stroke();
+
+    const starPositions = [W/2-180, W/2-90, W/2, W/2+90, W/2+180];
+    starPositions.forEach((sx, i) => {
+      ctx.fillStyle = i === 2 ? '#f0b429' : 'rgba(240,180,41,0.5)';
+      ctx.font = i === 2 ? '22px serif' : '14px serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('★', sx, 72);
+    });
+
+    ctx.font = '900 13px "JetBrains Mono", monospace';
+    ctx.fillStyle = 'rgba(240,180,41,0.6)';
+    ctx.textAlign = 'center';
+    ctx.fillText('— T Y P E F O R T —', W/2, 106);
+
+    ctx.font = 'bold 11px "JetBrains Mono", monospace';
+    ctx.fillStyle = 'rgba(200,205,216,0.5)';
+    ctx.fillText('C E R T I F I C A T E   O F   E X C E L L E N C E', W/2, 132);
+
+    ctx.strokeStyle = lineGrad;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(100, 148);
+    ctx.lineTo(W-100, 148);
+    ctx.stroke();
+
+    ctx.font = '500 12px "DM Sans", sans-serif';
+    ctx.fillStyle = 'rgba(140,145,160,0.8)';
+    ctx.fillText('THIS CERTIFIES THAT', W/2, 178);
+
+    ctx.save();
+    const nameGrad = ctx.createLinearGradient(W/2-200, 0, W/2+200, 0);
+    nameGrad.addColorStop(0, '#f0b429');
+    nameGrad.addColorStop(0.5, '#ffe066');
+    nameGrad.addColorStop(1, '#f0b429');
+    ctx.fillStyle = nameGrad;
+    ctx.font = 'bold 48px "Playfair Display", serif';
+    ctx.textAlign = 'center';
+    ctx.shadowColor = 'rgba(240,180,41,0.4)';
+    ctx.shadowBlur = 20;
+    ctx.fillText(name, W/2, 238);
+    ctx.restore();
+
+    const nameWidth = Math.min(ctx.measureText(name).width + 60, 500);
+    const uGrad = ctx.createLinearGradient(W/2 - nameWidth/2, 0, W/2 + nameWidth/2, 0);
+    uGrad.addColorStop(0,'transparent');
+    uGrad.addColorStop(0.5,'#f0b429');
+    uGrad.addColorStop(1,'transparent');
+    ctx.strokeStyle = uGrad;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(W/2 - nameWidth/2, 252);
+    ctx.lineTo(W/2 + nameWidth/2, 252);
+    ctx.stroke();
+
+    ctx.font = '400 13px "DM Sans", sans-serif';
+    ctx.fillStyle = 'rgba(200,205,216,0.75)';
+    ctx.fillText('has demonstrated exceptional typing proficiency by achieving', W/2, 284);
+
+    const stats = [
+      { label: 'ACCURACY', value: this.finalAcc + '%', color: '#4ade80' },
+      { label: 'SPEED', value: this.finalWpm + ' WPM', color: '#f0b429' },
+      { label: 'LEVEL', value: this.difficulty.toUpperCase(), color: this.difficulty === 'extreme' ? '#8b5cf6' : '#e84393' },
+    ];
+    const boxW = 170, boxH = 64, gap = 20;
+    const totalW = stats.length * boxW + (stats.length - 1) * gap;
+    let startX = (W - totalW) / 2;
+
+    stats.forEach(s => {
+      ctx.fillStyle = 'rgba(255,255,255,0.03)';
+      ctx.strokeStyle = 'rgba(240,180,41,0.2)';
+      ctx.lineWidth = 1;
+      this.roundRect(ctx, startX, 304, boxW, boxH, 4);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.font = '600 9px "JetBrains Mono", monospace';
+      ctx.fillStyle = 'rgba(140,145,160,0.8)';
+      ctx.textAlign = 'center';
+      ctx.fillText(s.label, startX + boxW/2, 322);
+
+      ctx.font = 'bold 22px "Bebas Neue", sans-serif';
+      ctx.fillStyle = s.color;
+      ctx.fillText(s.value, startX + boxW/2, 352);
+
+      startX += boxW + gap;
+    });
+
+    ctx.strokeStyle = lineGrad;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(50, 392);
+    ctx.lineTo(W-50, 392);
+    ctx.stroke();
+
+    ctx.font = '400 11px "JetBrains Mono", monospace';
+    ctx.fillStyle = 'rgba(140,145,160,0.7)';
+    ctx.fillText(`on the TypeFort ${this.difficulty.toUpperCase()} difficulty level — demonstrating elite keyboard mastery`, W/2, 416);
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    ctx.font = '400 10px "JetBrains Mono", monospace';
+    ctx.fillStyle = 'rgba(140,145,160,0.5)';
+    ctx.fillText(`Issued on ${dateStr}`, W/2, 436);
+
+    ctx.strokeStyle = lineGrad;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(80, 460);
+    ctx.lineTo(W-80, 460);
+    ctx.stroke();
+
+    ctx.font = 'bold 18px "Bebas Neue", sans-serif';
+    ctx.fillStyle = '#f0b429';
+    ctx.textAlign = 'left';
+    ctx.fillText('TypeFort', 80, 500);
+    ctx.font = '400 9px "JetBrains Mono", monospace';
+    ctx.fillStyle = 'rgba(140,145,160,0.6)';
+    ctx.fillText('Master Your Speed', 80, 516);
+
+    ctx.save();
+    ctx.translate(W/2, 492);
+    ctx.beginPath();
+    ctx.arc(0, 0, 32, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(240,180,41,0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, 0, 26, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(240,180,41,0.25)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.font = '22px serif';
+    ctx.fillStyle = '#f0b429';
+    ctx.textAlign = 'center';
+    ctx.fillText('✦', 0, 8);
+    ctx.font = 'bold 6px "JetBrains Mono", monospace';
+    ctx.fillStyle = 'rgba(240,180,41,0.7)';
+    const txt = 'VERIFIED · CERTIFIED ·';
+    for (let i = 0; i < txt.length; i++) {
+      ctx.save();
+      ctx.rotate((-Math.PI/2) + (i / txt.length) * Math.PI * 2);
+      ctx.fillText(txt[i], 0, -22);
+      ctx.restore();
+    }
+    ctx.restore();
+
+    ctx.textAlign = 'right';
+    ctx.font = '500 10px "JetBrains Mono", monospace';
+    ctx.fillStyle = 'rgba(200,205,216,0.8)';
+    ctx.fillText('Sakthivel Raja & Sanjive', W-80, 498);
+    ctx.font = '400 9px "JetBrains Mono", monospace';
+    ctx.fillStyle = 'rgba(140,145,160,0.5)';
+    ctx.fillText('Creators & Founders', W-80, 514);
+
+    ctx.strokeStyle = lineGrad;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(80, 540);
+    ctx.lineTo(W-80, 540);
+    ctx.stroke();
+
+    ctx.textAlign = 'center';
+    ctx.font = '400 8.5px "JetBrains Mono", monospace';
+    ctx.fillStyle = 'rgba(100,105,120,0.7)';
+    ctx.fillText('© 2025 TypeFort. All rights reserved.  |  typefort@gmail.com  |  typefort.io', W/2, 560);
+    ctx.fillText('This certificate was digitally generated and validates genuine typing performance on the TypeFort platform.', W/2, 578);
+  },
+
+  roundRect: function(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x+r, y);
+    ctx.lineTo(x+w-r, y);
+    ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+    ctx.lineTo(x+w, y+h-r);
+    ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+    ctx.lineTo(x+r, y+h);
+    ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+    ctx.lineTo(x, y+r);
+    ctx.quadraticCurveTo(x, y, x+r, y);
+    ctx.closePath();
+  },
+
+  downloadCertificate: function() {
+    const canvas = document.getElementById('certificateCanvas');
+    const link = document.createElement('a');
+    link.download = 'typefort-certificate.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  },
+
+  closeCertificate: function() {
+    document.getElementById('certOverlay').classList.remove('active');
+  },
+
+  // Navigation
+  restartTest: function() {
+    document.getElementById('resultsScreen').classList.remove('active');
+    document.getElementById('testScreen').classList.add('active');
+    this.resetStats();
+    this.renderText();
+    const self = this;
+    setTimeout(() => self.focusInput(), 100);
+  },
+
+  newText: function() {
+    this.generateText();
+    this.resetStats();
+    this.renderText();
+  },
+
+  goBack: function() {
+    clearInterval(this.timerInterval);
+    document.getElementById('testScreen').classList.remove('active');
+    document.getElementById('resultsScreen').classList.remove('active');
+    document.getElementById('diffScreen').classList.remove('hidden');
+    this.resetStats();
+  }
+};
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  window.appController.init();
+});
+</script>
+
+</body>
+</html>
